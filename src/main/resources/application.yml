@@ -1,0 +1,77 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: tag-service
+
+---
+spring:
+  profiles: local, dev, docker, default
+  datasource:
+    url: jdbc:mysql://${DB_HOST_PORT:localhost:3306}/tag?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: ${MYSQL_USER:root}
+    #password: ${MYSQL_PASSWORD:test}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        storage_engine: innodb
+    hibernate:
+      ddl-auto: update
+      generate-ddl: true
+      show-sql: true
+
+
+  hystrix:
+    command:
+      default:
+        execution:
+          isolation:
+            thread:
+              timeoutInMilliseconds: 15000
+
+---
+spring:
+  profiles: test
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    username: sa
+    password: sa
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      enabled: true
+    jpa:
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.H2Dialect
+          show_sql: false
+          hbm2ddl:
+            auto: update
+          naming:
+            physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+---
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:hsqldb:file:./database/tag-db
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
+    username: beacon_admin
+    password: letmein
+    hikari:
+      auto-commit: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
